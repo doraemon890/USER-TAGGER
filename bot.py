@@ -84,12 +84,11 @@ async def mentionall(event):
         replied_msg = await event.get_reply_message()
         if replied_msg == None:
             return await event.respond("__I can't mention members for older messages! (messages which are sent before I'm added to this group)__")
-        # Check if parse mode is Markdown
-        if replied_msg.parse_mode:
-            # Extract mentions if parse mode is Markdown
-            mentioned_usernames = [entity.plain_text for entity in replied_msg.parse_mode.entities if isinstance(entity, MessageEntityMention)]
-        else:
-            mentioned_usernames = []
+        # Extract mentions from entities
+        mentioned_usernames = []
+        for entity in replied_msg.entities:
+            if isinstance(entity, MessageEntityMention):
+                mentioned_usernames.append(entity.plain_text)
         # Tag the users in the replied message
         tagged_users = ' '.join([f"@{username}" for username in mentioned_usernames])
         await event.respond(tagged_users)
@@ -118,6 +117,7 @@ async def mentionall(event):
         spam_chats.remove(chat_id)
     except:
         pass
+
 
 @client.on(events.NewMessage(pattern="^/cancel$"))
 async def cancel_spam(event):
