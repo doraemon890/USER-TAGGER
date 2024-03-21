@@ -22,7 +22,7 @@ spam_chats = []
 @client.on(events.NewMessage(pattern="^/start$"))
 async def start(event):
     await event.reply(
-        "**I'm User Tagger Bot**,\n\ I will help you to mention near about all members in your group and channel 💗",
+        "**I am User Tagger Bot**,\n\nI will help you to mention near about all members in your group or channel..🫧",
         link_preview=False,
         buttons=(
             [
@@ -34,7 +34,7 @@ async def start(event):
 
 @client.on(events.NewMessage(pattern="^/help$"))
 async def help(event):
-    helptext = "**Help Menu ofUser Tagger Bot**\n\nCommand: /utag\n__You can use this command with text what you want to say to others"
+    helptext = "**Help Menu of User Tagger Bot**\n\nCommand: /utag\nYou can use this command with text or reply to text that you want to say to others..."
     await event.reply(
         helptext,
         link_preview=False,
