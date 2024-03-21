@@ -21,7 +21,7 @@ spam_chats = []
 @client.on(events.NewMessage(pattern="^/start$"))
 async def start(event):
   await event.reply(
-    "__**I'm MentionAll Bot**, I will help you to mention near about all members in your group and channel 👻",
+    "**I'm User Tagger Bot**,\n\ I will help you to mention near about all members in your group and channel 💗",
     link_preview=False,
     buttons=(
       [
