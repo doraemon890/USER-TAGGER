@@ -1,8 +1,9 @@
-import os, logging, asyncio
+import os
+import logging
+import asyncio
 from telethon import Button
 from telethon import TelegramClient, events
-from telethon.tl.types import ChannelParticipantAdmin
-from telethon.tl.types import ChannelParticipantCreator
+from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator, MessageEntityMention
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.errors import UserNotParticipantError
 
@@ -20,31 +21,31 @@ spam_chats = []
 
 @client.on(events.NewMessage(pattern="^/start$"))
 async def start(event):
-  await event.reply(
-    "**I'm User Tagger Bot**,\n\ I will help you to mention near about all members in your group and channel 💗",
-    link_preview=False,
-    buttons=(
-      [
-        Button.url("ᴏᴡɴᴇʀ", url="https://t.me/JARVIS_V2"),
-        Button.url("sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/JARVIS_X_SUPPORT")
-      ]
+    await event.reply(
+        "**I'm User Tagger Bot**,\n\ I will help you to mention near about all members in your group and channel 💗",
+        link_preview=False,
+        buttons=(
+            [
+                Button.url("ᴏᴡɴᴇʀ", url="https://t.me/JARVIS_V2"),
+                Button.url("sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/JARVIS_X_SUPPORT")
+            ]
+        )
     )
-  )
 
 @client.on(events.NewMessage(pattern="^/help$"))
 async def help(event):
-  helptext = "**Help Menu of MentionAll_Bot**\n\nCommand: /mentionall\n__You can use this command with text what you want to say to others.__\n`Example: /mentionall ShikariBaaZ is Always on Shikar!`\n__You can you this command as a reply to any message. Bot will tag users to that replied messsage__.\n\nFollow [@The_Shikarii](https://github.com/ShikariBaaZ) on Github"
-  await event.reply(
-    helptext,
-    link_preview=False,
-    buttons=(
-      [
-        Button.url("ᴏᴡɴᴇʀ", url="https://t.me/JARVIS_V2"),
-        Button.url("sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/JARVIS_X_SUPPORT")
-      ]
+    helptext = "**Help Menu ofUser Tagger Bot**\n\nCommand: /utag\n__You can use this command with text what you want to say to others"
+    await event.reply(
+        helptext,
+        link_preview=False,
+        buttons=(
+            [
+                Button.url("ᴏᴡɴᴇʀ", url="https://t.me/JARVIS_V2"),
+                Button.url("sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/JARVIS_X_SUPPORT")
+            ]
+        )
     )
-  )
-  
+
 @client.on(events.NewMessage(pattern="^/utag ?(.*)"))
 async def mentionall(event):
     chat_id = event.chat_id
@@ -83,10 +84,14 @@ async def mentionall(event):
         replied_msg = await event.get_reply_message()
         if replied_msg == None:
             return await event.respond("__I can't mention members for older messages! (messages which are sent before I'm added to this group)__")
-        # Get the user IDs from the replied message
-        replied_user_ids = [entity.id for entity in replied_msg.entities if isinstance(entity, MessageEntityMention)]
+        # Check if parse mode is Markdown
+        if replied_msg.parse_mode:
+            # Extract mentions if parse mode is Markdown
+            mentioned_usernames = [entity.plain_text for entity in replied_msg.parse_mode.entities if isinstance(entity, MessageEntityMention)]
+        else:
+            mentioned_usernames = []
         # Tag the users in the replied message
-        tagged_users = ' '.join([f"[{entity.first_name}](tg://user?id={entity.id})" for entity in replied_msg.entities if isinstance(entity, MessageEntityMention)])
+        tagged_users = ' '.join([f"@{username}" for username in mentioned_usernames])
         await event.respond(tagged_users)
         msg = replied_msg
     else:
@@ -114,17 +119,16 @@ async def mentionall(event):
     except:
         pass
 
-
 @client.on(events.NewMessage(pattern="^/cancel$"))
 async def cancel_spam(event):
-  if not event.chat_id in spam_chats:
-    return await event.respond('__There is no proccess on going...__')
-  else:
-    try:
-      spam_chats.remove(event.chat_id)
-    except:
-      pass
-    return await event.respond('__Stopped.__')
+    if not event.chat_id in spam_chats:
+        return await event.respond('__There is no proccess on going...__')
+    else:
+        try:
+            spam_chats.remove(event.chat_id)
+        except:
+            pass
+        return await event.respond('__Stopped.__')
 
 print(">> BOT STARTED <<")
 client.run_until_disconnected()
