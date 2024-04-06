@@ -74,9 +74,9 @@ async def mention_users(event, mode, msg):
         if usrnum == 5:
             if mode == "text_on_cmd":
                 txt = f"{usrtxt}\n\n{msg}"
-                await client.send_message(chat_id, txt)
+                await client.send_message(chat_id, txt, link_preview=False, parse_mode='markdown')
             elif mode == "text_on_reply":
-                await msg.reply(usrtxt)
+                await msg.reply(usrtxt, link_preview=False, parse_mode='markdown')
             await asyncio.sleep(2)
             usrnum = 0
             usrtxt = ''
@@ -109,15 +109,20 @@ async def atag(event):
                 ChannelParticipantCreator
             ))
         ):
-            admin_mentions.append(f"{participant.first_name}")
+            admin_mentions.append(f"[{participant.first_name}](tg://user?id={participant.id})")
 
     if admin_mentions:
         admin_mentions_text = ", ".join(admin_mentions)
         if event.pattern_match.group(1):
             msg = event.pattern_match.group(1)
-            await client.send_message(chat_id, f"{admin_mentions_text}: {msg}")
+            await client.send_message(chat_id, f"{admin_mentions_text}: {msg}", link_preview=False, parse_mode='markdown')
+        elif event.is_reply:
+            msg = await event.get_reply_message()
+            if msg == None:
+                return await event.respond("__I can't mention members for older messages! (messages which are sent before I'm added to this group)__")
+            await msg.reply(admin_mentions_text, link_preview=False, parse_mode='markdown')
         else:
-            await client.send_message(chat_id, admin_mentions_text)
+            await client.send_message(chat_id, admin_mentions_text, link_preview=False, parse_mode='markdown')
     else:
         await event.respond("__No admins found in this group or channel!__")
 
