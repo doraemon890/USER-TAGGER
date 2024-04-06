@@ -70,7 +70,7 @@ async def mention_users(event, mode, msg):
         if not chat_id in spam_chats:
             break
         usrnum += 1
-        usrtxt += f"[{usr.first_name}](tg://user?id={usr.id}) "
+        usrtxt += f"𖤍 [{usr.first_name}](tg://user?id={usr.id}) 𖤍 "
         if usrnum == 5:
             if mode == "text_on_cmd":
                 txt = f"{usrtxt}\n\n{msg}"
@@ -109,13 +109,13 @@ async def atag(event):
                 ChannelParticipantCreator
             ))
         ):
-            admin_mentions.append(f"[{participant.first_name}](tg://user?id={participant.id})")
+            admin_mentions.append(f"𖤍 [{participant.first_name}](tg://user?id={participant.id}) 𖤍")
 
     if admin_mentions:
-        admin_mentions_text = ", ".join(admin_mentions)
+        admin_mentions_text = " ".join(admin_mentions)
         if event.pattern_match.group(1):
             msg = event.pattern_match.group(1)
-            await client.send_message(chat_id, f"{admin_mentions_text}: {msg}", link_preview=False, parse_mode='markdown')
+            await client.send_message(chat_id, f"{admin_mentions_text}, {msg}", link_preview=False, parse_mode='markdown')
         elif event.is_reply:
             msg = await event.get_reply_message()
             if msg == None:
