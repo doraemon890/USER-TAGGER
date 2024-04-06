@@ -1,9 +1,8 @@
 import os
 import logging
 import asyncio
-from telethon import Button
-from telethon import TelegramClient, events
-from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator, MessageEntityMention
+from telethon import Button, TelegramClient, events
+from telethon.tl.types import ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.errors import UserNotParticipantError
 
@@ -115,7 +114,12 @@ async def tag_admins(event):
     if event.is_private:
         return await event.respond("__This command can be used in groups and channels!__")
     
-    async for participant in client.iter_participants(chat_id):
+    try:
+        participants = await client.get_participants(chat_id)
+    except:
+        return await event.respond("__Failed to fetch participants!__")
+    
+    for participant in participants:
         if (
             isinstance(participant.participant,
             (
@@ -123,7 +127,11 @@ async def tag_admins(event):
                 ChannelParticipantCreator
             ))
         ):
-            await event.reply(f"@{participant.username}")
+            if participant.username:
+                await event.reply(f"@{participant.username}")
+            else:
+                await event.reply(f"[{participant.first_name}](tg://user?id={participant.id})")
+            break  # Only tag the first admin found
 
 @client.on(events.NewMessage(pattern="^/cancel$"))
 async def cancel_spam(event):
