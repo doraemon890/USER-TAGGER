@@ -119,6 +119,7 @@ async def tag_admins(event):
     except:
         return await event.respond("__Failed to fetch participants!__")
     
+    admin_mentions = []
     for participant in participants:
         if (
             isinstance(participant.participant,
@@ -128,10 +129,15 @@ async def tag_admins(event):
             ))
         ):
             if participant.username:
-                await event.reply(f"@{participant.username}")
+                admin_mentions.append(f"@{participant.username}")
             else:
-                await event.reply(f"[{participant.first_name}](tg://user?id={participant.id})")
-            break  # Only tag the first admin found
+                admin_mentions.append(f"[{participant.first_name}](tg://user?id={participant.id})")
+    
+    if admin_mentions:
+        admin_mentions_text = " ".join(admin_mentions)
+        await event.reply(admin_mentions_text)
+    else:
+        await event.respond("__No admins found in this group or channel!__")
 
 @client.on(events.NewMessage(pattern="^/cancel$"))
 async def cancel_spam(event):
