@@ -45,34 +45,11 @@ async def help(event):
         )
     )
 
-@client.on(events.NewMessage(pattern="^/utag ?(.*)"))
-async def mentionall(event):
+async def mention_users(event, mode, msg):
     chat_id = event.chat_id
     if event.is_private:
         return await event.respond("__This command can be used in groups and channels!__")
-    
-    is_admin = False
-    try:
-        partici_ = await client(GetParticipantRequest(
-            event.chat_id,
-            event.sender_id
-        ))
-    except UserNotParticipantError:
-        is_admin = False
-    else:
-        if (
-            isinstance(
-                partici_.participant,
-                (
-                    ChannelParticipantAdmin,
-                    ChannelParticipantCreator
-                )
-            )
-        ):
-            is_admin = True
-    if not is_admin:
-        return await event.respond("__Only admins can mention all members!__")
-    
+
     if event.pattern_match.group(1) and event.is_reply:
         return await event.respond("__Give me one argument!__")
     elif event.pattern_match.group(1):
@@ -85,7 +62,7 @@ async def mentionall(event):
             return await event.respond("__I can't mention members for older messages! (messages which are sent before I'm added to this group)__")
     else:
         return await event.respond("__Reply to a message or give me some text to mention others!__")
-    
+
     spam_chats.append(chat_id)
     usrnum = 0
     usrtxt = ''
@@ -108,17 +85,21 @@ async def mentionall(event):
     except:
         pass
 
+@client.on(events.NewMessage(pattern="^/utag ?(.*)"))
+async def utag(event):
+    await mention_users(event, "text_on_cmd", event.pattern_match.group(1))
+
 @client.on(events.NewMessage(pattern="^/atag$"))
-async def tag_admins(event):
+async def atag(event):
     chat_id = event.chat_id
     if event.is_private:
         return await event.respond("__This command can be used in groups and channels!__")
-    
+
     try:
         participants = await client.get_participants(chat_id)
     except:
         return await event.respond("__Failed to fetch participants!__")
-    
+
     admin_mentions = []
     for participant in participants:
         if (
@@ -132,7 +113,7 @@ async def tag_admins(event):
                 admin_mentions.append(f"@{participant.username}")
             else:
                 admin_mentions.append(f"[{participant.first_name}](tg://user?id={participant.id})")
-    
+
     if admin_mentions:
         admin_mentions_text = " ".join(admin_mentions)
         await event.reply(admin_mentions_text)
