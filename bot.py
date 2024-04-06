@@ -89,7 +89,7 @@ async def mention_users(event, mode, msg):
 async def utag(event):
     await mention_users(event, "text_on_cmd", event.pattern_match.group(1))
 
-@client.on(events.NewMessage(pattern="^/atag$"))
+@client.on(events.NewMessage(pattern="^/atag ?(.*)"))
 async def atag(event):
     chat_id = event.chat_id
     if event.is_private:
@@ -109,14 +109,15 @@ async def atag(event):
                 ChannelParticipantCreator
             ))
         ):
-            if participant.username:
-                admin_mentions.append(f"@{participant.username}")
-            else:
-                admin_mentions.append(f"[{participant.first_name}](tg://user?id={participant.id})")
+            admin_mentions.append(f"{participant.first_name}")
 
     if admin_mentions:
-        admin_mentions_text = " ".join(admin_mentions)
-        await event.reply(admin_mentions_text)
+        admin_mentions_text = ", ".join(admin_mentions)
+        if event.pattern_match.group(1):
+            msg = event.pattern_match.group(1)
+            await client.send_message(chat_id, f"{admin_mentions_text}: {msg}")
+        else:
+            await client.send_message(chat_id, admin_mentions_text)
     else:
         await event.respond("__No admins found in this group or channel!__")
 
